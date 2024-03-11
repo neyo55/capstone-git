@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   sources:
-    - repoURL: https://github.com/neyo55/eks-deployment-using-github.git
+    - repoURL: https://github.com/neyo55/capstone-git.git
       targetRevision: HEAD
       ref: capstone
     - repoURL: https://grafana.github.io/helm-charts
@@ -19,10 +19,11 @@ spec:
       targetRevision: 6.52.2
       helm:
         valueFiles:
-          - $capstone/apps/apps-values/grafana.yaml
+          - $capstone-git/apps/apps-values/grafana.yaml
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
+      - Validate=true
       - CreateNamespace=true
