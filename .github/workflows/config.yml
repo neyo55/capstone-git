@@ -38,6 +38,11 @@ jobs:
       # # Install Argo CD CRDs
       # - name: Install Argo CD CRDs
       #   run: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml    
+      
+      - name: Install ArgoCD CLI
+        run: |
+          sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo chmod +x /usr/local/bin/argocd
 
       # Install Terraform
       - name: Install Terraform CLI
@@ -93,9 +98,12 @@ jobs:
 
       - name: Apply Kubernetes Manifests
         run: |
-            kubectl apply -f apps/complete-demo.yaml
+            kubectl apply -f apps/sock-shop/complete-demo.yaml
             kubectl apply -f apps/argocd.yaml
-            kubectl apply -f apps/grafana.yaml || exit 1
+            kubectl apply -f apps/grafana.yaml
+            kubectl apply -f apps/prometheus.yaml || exit 1
+            
+            
             
         
 

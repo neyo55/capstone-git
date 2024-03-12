@@ -9,11 +9,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/neyo55/capstone-git.git
+    repoURL: https://github.com/neyo55/capstone-git
     targetRevision: HEAD
-    path: apps
+    path: ./apps/sock-shop
   destination:
     server: https://kubernetes.default.svc
+    namespace: sock-shop
   syncPolicy:
     automated:
       prune: true

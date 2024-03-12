@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   sources:
-    - repoURL: https://github.com/neyo55/capstone-git.git
+    - repoURL: https://github.com/neyo55/capstone-git
       targetRevision: HEAD
       ref: capstone
     - repoURL: https://prometheus-community.github.io/helm-charts/
