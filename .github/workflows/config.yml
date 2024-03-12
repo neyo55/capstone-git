@@ -55,13 +55,13 @@ jobs:
         id: plan
         run: terraform plan -input=false
 
-      # - name: Terraform Apply
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform apply -auto-approve -input=false
-
-      - name: Terraform Destroy
+      - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform destroy -auto-approve -input=false    
+        run: terraform apply -auto-approve -input=false
+
+      # - name: Terraform Destroy
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   run: terraform destroy -auto-approve -input=false    
 
   k8s_apply:
     name: Deploy to Kubernetes
@@ -85,23 +85,33 @@ jobs:
         run: |
           helm repo add argo-cd https://argoproj.github.io/argo-helm
           helm repo update || exit 1
-  
-      - name: Install Argo CD
-        run: helm install argocd argo-cd/argo-cd || exit 1 
-
+      
       - name: Create argocd namespace
-        run: kubectl create namespace argocd  
-          
+        run: kubectl create namespace argocd
+
+      # - name: create prometheus namespace
+      #   run: kubectl create namespace prometheus
+        
+      # - name: create grafana namespace
+      #   run: kubectl create namespace grafana  
+
+      - name: Install Argo CD
+        run: helm install argocd argo-cd/argo-cd --namespace argocd || exit 1 
+
+        
       - name: Check Argo CD deployment status
         run: kubectl get deployment -n argocd || exit 1    
         
 
       - name: Apply Kubernetes Manifests
         run: |
+            kubectl apply -f apps/namespaces/namespace.yaml
             kubectl apply -f apps/sock-shop/complete-demo.yaml
             kubectl apply -f apps/argocd.yaml
-            kubectl apply -f apps/grafana.yaml
-            kubectl apply -f apps/prometheus.yaml || exit 1
+            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
+            kubectl apply -f apps/manifests-monitoring/prometheus $(ls *-prometheus-*.yaml | awk ' { print " -f " $1 } ')
+            kubectl apply -f apps/manifests-monitoring/grafana $(ls *-grafana-*.yaml | awk ' { print " -f " $1 }'  | grep -v grafana-import)
+          
             
             
             
