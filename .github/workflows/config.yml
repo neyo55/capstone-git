@@ -35,9 +35,9 @@ jobs:
           sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-      # Install Argo CD CRDs
-      - name: Install Argo CD CRDs
-        run: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml    
+      # # Install Argo CD CRDs
+      # - name: Install Argo CD CRDs
+      #   run: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml    
 
       # Install Terraform
       - name: Install Terraform CLI
@@ -95,8 +95,8 @@ jobs:
         run: |
             kubectl apply -f apps/complete-demo.yaml
             kubectl apply -f apps/argocd.yaml
-            kubectl apply -f apps/grafana.yaml
-            kubectl apply -f apps/prometheus.yaml || exit 1
+            kubectl apply -f apps/grafana.yaml || exit 1
+            
         
 
       
