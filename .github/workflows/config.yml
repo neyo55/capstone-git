@@ -109,8 +109,8 @@ jobs:
             kubectl apply -f apps/sock-shop/complete-demo.yaml
             kubectl apply -f apps/argocd/argocd.yaml
             kubectl apply -f apps/argocd/argocd-cluster-role.yaml
-            kubectl apply -f apps/manifests-monitoring/prometheus $(ls *-prometheus-*.yaml | awk ' { print " -f " $1 } ')
-            kubectl apply -f apps/manifests-monitoring/grafana $(ls *-grafana-*.yaml | awk ' { print " -f " $1 }'  | grep -v grafana-import)
+            kubectl apply -f apps/manifests-monitoring/prometheus 
+            kubectl apply -f apps/manifests-monitoring/grafana 
           
             
             
