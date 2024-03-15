@@ -1,21 +1,23 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
 metadata:
   name: prometheus
   namespace: monitoring
 spec:
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: monitoring
-  source:
-    repoURL: 'https://github.com/neyo55/capstone-git'
-    path: ./apps/manifests-monitoring/prometheus
-    targetRevision: HEAD
-  project: default
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  replicas: 1
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      team: frontend
+  resources:
+    requests:
+      memory: 400Mi
+  alerting:
+    alertmanagers:
+    - namespace: monitoring
+      name: alertmanager-main
+      port: web
+
 
 
 
