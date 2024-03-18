@@ -86,8 +86,8 @@ jobs:
           helm repo add argo-cd https://argoproj.github.io/argo-helm
           helm repo update || exit 1
       
-      - name: Create argocd namespace
-        run: kubectl create namespace argocd
+      - name: Create argocd namespace if it doesn't exist
+        run: kubectl create namespace argocd || echo "Namespace already exists"
 
       # - name: create prometheus namespace
       #   run: kubectl create namespace prometheus
