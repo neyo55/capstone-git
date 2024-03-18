@@ -117,7 +117,7 @@ jobs:
 
       - name: Apply Kubernetes Manifests
         run: |
-            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
+            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml --ignore-errors=true
             kubectl apply -f apps/sock-shop/complete-demo.yaml
             kubectl apply -f apps/argocd/argocd.yaml
             kubectl apply -f apps/argocd/argocd-cluster-role.yaml
