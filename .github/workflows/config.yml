@@ -112,12 +112,18 @@ jobs:
             helm install argocd argo-cd/argo-cd --namespace argocd || exit 1
          
       - name: Check Argo CD deployment status
-        run: kubectl get deployment -n argocd || exit 1    
+        run: kubectl get deployment -n argocd || exit 1   
+        
+      - name: Create monitoring namespace if it does not exist
+        run: |
+          if ! kubectl get namespace monitoring &>/dev/null; then
+            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
+          fi
+        
         
 
       - name: Apply Kubernetes Manifests
         run: |
-            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml --ignore-errors=true
             kubectl apply -f apps/sock-shop/complete-demo.yaml
             kubectl apply -f apps/argocd/argocd.yaml
             kubectl apply -f apps/argocd/argocd-cluster-role.yaml
