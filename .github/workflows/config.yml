@@ -55,13 +55,13 @@ jobs:
         id: plan
         run: terraform plan -input=false
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
-
-      # - name: Terraform Destroy
+      # - name: Terraform Apply
       #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform destroy -auto-approve -input=false    
+      #   run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Destroy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform destroy -auto-approve -input=false    
 
   k8s_apply:
     name: Deploy to Kubernetes
@@ -138,12 +138,12 @@ jobs:
         
       - name: Verify kubectl configuration
         run: | 
-              sleep 30
+              sleep 120
               kubectl get svc -n elk
               kubectl get svc -n argocd
               kubectl get svc -n sock-shop
               kubectl get svc -n monitoring 
-              kubectl get svc -A     
+              kubectl get pods -A    
             
             
         
