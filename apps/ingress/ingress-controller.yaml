@@ -7,21 +7,22 @@ metadata:
    cert-manager.io/cluster-issuer: letsencrypt-prod
 
 spec:
+  ingressClassName: nginx
   rules:
-  - host: sockshop.neyothetechguy.com.ng
+  - host: frontend.neyothetechguy.com.ng
     http:
       paths:
         - path: /
           pathType: Prefix
           backend:
             service:
-              name: front-end
+              name: frontend
               port:
                 number: 80
       
   tls:
       - hosts:
-          - sockshop.neyothetechguy.com.ng
+          - frontend.neyothetechguy.com.ng
         secretName: tls-secret
 
 
