@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: front-end
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: front-end
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: front-end
+    spec:
+      containers:
+      - image: alexwhen/docker-2048
+        imagePullPolicy: Always
+        name: front-end
+        ports:
+        - containerPort: 80

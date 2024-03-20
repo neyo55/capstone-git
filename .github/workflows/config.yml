@@ -55,13 +55,13 @@ jobs:
         id: plan
         run: terraform plan -input=false
 
-      # - name: Terraform Apply
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform apply -auto-approve -input=false
-
-      - name: Terraform Destroy
+      - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform destroy -auto-approve -input=false    
+        run: terraform apply -auto-approve -input=false
+
+      # - name: Terraform Destroy
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   run: terraform destroy -auto-approve -input=false    
 
   k8s_apply:
     name: Deploy to Kubernetes
@@ -89,12 +89,7 @@ jobs:
       - name: Create argocd namespace if it doesn't exist
         run: kubectl create namespace argocd || echo "Namespace already exists"
 
-      # - name: create prometheus namespace
-      #   run: kubectl create namespace prometheus
-        
-      # - name: create grafana namespace
-      #   run: kubectl create namespace grafana
-      
+      # Install Prometheus Operator CRDs
       - name: Deploy Prometheus Operator CRDs
         run: |
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
@@ -104,6 +99,7 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
 
+      # Install Argo CD    
       - name: Install Argo CD
         run: |
             if helm list -n argocd | grep -q argocd; then
@@ -113,15 +109,32 @@ jobs:
          
       - name: Check Argo CD deployment status
         run: kubectl get deployment -n argocd || exit 1   
-        
+       
+      # create namespaces for the applications  
       - name: Create monitoring namespace if it does not exist
         run: |
           if ! kubectl get namespace monitoring &>/dev/null; then
             kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
-          fi
-        
-        
+          fi 
 
+      # Install NGINX Ingress Controller
+      - name: Install NGINX Ingress Controller
+        run: |
+          kubectl create namespace ingress-nginx || echo "Namespace already exists"
+          helm install nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx || exit 1
+
+      # Install cert-manager
+      - name: Install cert-manager
+        run: |
+          kubectl create namespace cert-manager || echo "Namespace already exists"
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml || exit 1
+
+      # Install Certificate CRD
+      - name: Install Certificate CRD
+        run: |
+          kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.14.4/cert-manager.crds.yaml || exit 1    
+
+      # applying manifests
       - name: Apply Kubernetes Manifests
         run: |
             kubectl apply -f apps/sock-shop/complete-demo.yaml
@@ -129,21 +142,23 @@ jobs:
             kubectl apply -f apps/argocd/argocd-cluster-role.yaml
             kubectl apply -f apps/manifests-monitoring/prometheus 
             kubectl apply -f apps/manifests-monitoring/grafana 
-          
+        
+      # Deploy ELK Stack on EKS   
       - name: Deploy ELK Stack
         run: | 
               cd apps/elk
               kubectl config view
               kubectl apply -f . --validate=false
         
-      - name: Verify kubectl configuration
+      - name: Verify kubectl configurations
         run: | 
               sleep 120
               kubectl get svc -n elk
               kubectl get svc -n argocd
               kubectl get svc -n sock-shop
               kubectl get svc -n monitoring 
-              kubectl get pods -A    
+              kubectl get pods -n cert-manager
+              kubectl get pods -A     
             
             
         

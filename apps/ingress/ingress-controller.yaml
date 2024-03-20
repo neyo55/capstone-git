@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  annotations:
+   kubernetes.io/ingress.class: nginx
+   cert-manager.io/cluster-issuer: letsencrypt-prod
+
+spec:
+  rules:
+  - host: sockshop.neyothetechguy.com.ng
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: front-end
+              port:
+                number: 80
+      
+  tls:
+      - hosts:
+          - sockshop.neyothetechguy.com.ng
+        secretName: tls-secret
+
+
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: example-ingress
+#   namespace: default
+# spec:
+#   rules:
+#     - host: example.com
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: example-service
+#                 port:
+#                   number: 80
+
+
+
