@@ -117,6 +117,12 @@ jobs:
             kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
           fi 
 
+      # Add the Nginx Ingress Controller Helm repository
+      - name: Add NGINX Ingress Controller Helm repository
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update || exit 1
+
       # Install NGINX Ingress Controller
       - name: Install NGINX Ingress Controller
         run: |
