@@ -121,7 +121,7 @@ jobs:
       - name: Install NGINX Ingress Controller
         run: |
           kubectl create namespace ingress-nginx || echo "Namespace already exists"
-          helm install nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx || exit 1
+          helm install nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx --version v3.4.3 || exit 1
 
       # Install cert-manager
       - name: Install cert-manager
@@ -132,7 +132,7 @@ jobs:
       # Install Certificate CRD
       - name: Install Certificate CRD
         run: |
-          kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.14.4/cert-manager.crds.yaml || exit 1    
+          kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.crds.yaml || exit 1    
 
       # applying manifests
       - name: Apply Kubernetes Manifests
