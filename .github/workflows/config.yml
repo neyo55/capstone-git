@@ -127,7 +127,7 @@ jobs:
       - name: Install NGINX Ingress Controller
         run: |
           kubectl create namespace ingress-nginx || echo "Namespace already exists"
-          helm install nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx --version v3.4.3 || exit 1
+          helm install nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx --version 4.10.0 || exit 1
 
       # Install cert-manager
       - name: Install cert-manager
