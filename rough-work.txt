@@ -1,0 +1,447 @@
+aws eks update-kubeconfig --name neyo-capstone-cluster --region eu-west-2
+
+kubectl get pods -n sock-shop
+
+kubectl get svc -n elk 
+
+kubectl get pods -A
+
+kubectl get svc
+
+kubectl get svc -A
+
+kubectl get ns
+
+kubectl get all -n ingress-nginx
+
+kubectl patch svc front-end -p '{"spec": {"type": "LoadBalancer"}}' -n sock-shop
+
+kubectl get svc -A
+
+helm repo add argo-cd https://argoproj.github.io/argo-helm
+
+helm install argocd argo-cd/argo-cd
+
+kubectl get deployment
+
+kubectl patch svc argocd-server-7d46977998-rspkp -p '{"spec": {"type": "LoadBalancer"}}'
+
+kubectl get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+
+kubectl get secret argocd-initial-admin-secret -o yaml -n argocd      ##### to get the password and username for argocd
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o=jsonpath='{.data.password}' | base64 --decode   ####### to decode the password ARGOCD_PASSWORD=<output from
+
+kubectl get svc -A
+
+kubectl get deployment -A
+
+kubectl get nodes -o wide   # to get the nodepods ip address
+
+http://<NODE_IP>:31300
+
+kubectl get pods -n argocd # Identify the pod running Grafana:
+
+kubectl port-forward -n argocd <grafana-pod-name> 3000:3000 # Forward the Grafana port to your local machine:
+
+http://localhost:3000 # Access Grafana in your web browser:
+
+
+#########################
+
+# to install ingress 
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx
+
+# Create a file named my-ingress.yaml with the following content:
+
+apiVersion: networking.k8s.io/v1
+
+kubectl apply -f my-ingress.yaml # To apply the Ingress resource to use instead of port forwarding:
+
+
+
+
+
+
+
+##################################################
+
+kubectl apply -f  complete-demo.yaml
+
+kubectl create namespace argocd
+
+kubectl apply -f /path/argocd-server.yaml
+
+kubectl apply -f  argocd.yaml
+
+
+###### TFEKSWorkshop-cluster ######
+
+aws eks update-kubeconfig --name neyo-capstone-cluster --region eu-west-2
+
+
+
+kubectl apply -f apps/grafana.yaml
+kubectl apply -f apps/prometheus.yaml || exit 1
+
+######################################
+
+# - name: Install Helm
+#   run: |
+#     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+#     chmod +x get_helm.sh
+#     ./get_helm.sh --version v3.7.0  # Specify the Helm version
+
+
+
+###################
+argocd cli terminal     
+
+#############################################
+
+# kubectl create -f apps/manifests-monitoring/00-monitoring/00-monitoring-ns.yaml
+#             kubectl apply -f apps/manifests-monitoring/prometheus1-10 $(ls *-prometheus-*.yaml | awk ' { print " -f " $1 } ')
+#             kubectl apply -f apps/manifests-monitoring/grafana20-22 $(ls *-grafana-*.yaml | awk ' { print " -f " $1 }'  | grep -v grafana-import)
+#             for file in $(find apps/manifest-monitoring -type f -name "*.yaml"); do
+#               kubectl apply -f $file
+#             done
+
+
+- name: Apply Kubernetes Manifests
+        run: |
+            kubectl create -f apps/manifests-monitoring/monitoring/00-monitoring-ns.yaml
+            kubectl apply -f apps/sock-shop/complete-demo.yaml
+            kubectl apply -f apps/argocd/argocd.yaml
+            kubectl apply -f apps/argocd/argocd-cluster-role.yaml
+            kubectl apply -f apps/manifests-monitoring/prometheus $(ls *-prometheus-*.yaml | awk ' { print " -f " $1 } ')
+            kubectl apply -f apps/manifests-monitoring/grafana $(ls *-grafana-*.yaml | awk ' { print " -f " $1 }'  | grep -v grafana-import)
+          
+
+
+############################################################################
+
+
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-end
+  annotations:
+        prometheus.io/scrape: 'true'
+  labels:
+    name: front-end
+  namespace: sock-shop
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8079
+  selector:
+    name: front-end
+
+
+    ##############################################
+    aws eks update-kubeconfig --name neyo-capstone-cluster --region eu-west-2
+
+    kubectl get pods -n sock-shop
+
+    kubectl get pods -A
+
+    kubectl get svc
+
+    kubectl get svc -A
+    # do this to append the argocd cluster ip to a loabalancer #
+    kubectl get all -n argocd
+    kubectl edit svc argocd-server -n argocd
+    kubectl get svc -n argocd
+    kubectl edit svc grafana -n monitoring
+    kubectl get svc -n monitoring
+    kubectl edit svc prometheus -n monitoring
+    kubectl get pods -n monitoring
+    kubectl get svc -n monitoring
+    kubectl port-forward service/Prometheus 9090:9090 -n monitoring
+    
+
+
+
+    ####################### README #######################
+    # update eks context 
+    aws eks update-kubeconfig --name neyo-capstone-cluster --region eu-west-2
+
+    kubectl get pods -A
+    kubectl get svc -A
+    kubectl get svc -n argocd
+    # change argocd CLUSTERIP to LoadBalancer for easy access, edit with vim editor 
+    kubectl edit svc argocd-server -n argocd
+
+    # use this command to get the argocd loadbalancer DNS 
+    kubectl get svc -n argocd
+
+    # to login to the argocd terminal to get the password
+    argocd login ### put the dns name, is the dns of the loadbalancer ###
+    argocd login a53e88ef7c0504d8e8c17a2f77dbafa2-1887691037.eu-west-2.elb.amazonaws.com
+
+    # the default username is "admin" 
+
+    # use this command to get the argocd password, type it on the terminal
+    kubectl get secret argocd-initial-admin-secret -o yaml -n argocd 
+
+    # use this command to decrypt the password
+    kubectl get secret argocd-initial-admin-secret -n argocd -o=jsonpath='{.data.password}' | base64 --decode
+
+    # default username is admin
+    # the password is the decrypted code =cDj4EAQSb8mA1qt1
+    # so after inputting the details the context will be successfully logged in
+    # then access the argocd page with the load balancer dns address shown
+    "a53e88ef7c0504d8e8c17a2f77dbafa2-1887691037.eu-west-2.elb.amazonaws.com"
+    # also input the username and password you used to login to the argocd terminal
+    # then you will be able to access the argocd page
+
+    # access the argocd page with the loadbalancer DNS to start deploying the services
+    # i deployed the services using the YAML format and it was successfuly deployed.
+
+    ############### check if the pods are running ################
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
+
+##### edit the service port from NodePort to LoadBalancer just the way i did for the argocd-server ####
+kubectl edit svc prometheus -n monitoring
+# a message will be displayed after successfully edited
+"service/prometheus edited"
+
+##### then run this again ########
+kubectl get svc -n monitoring
+
+### copy the DNS of the load balancer and add port :9090 to access the prometheus page #####
+ac75c8c1d55a145c2bef25c3108fc6a5-4863350.eu-west-2.elb.amazonaws.com:9090 
+
+# the same step for the grafana web page to access the grafana page
+kubectl get svc -n monitoring | grep grafana
+
+# edit the grafana service port from NodePort to LoadBalancer
+kubectl edit svc grafana -n monitoring
+
+# a message will be displayed after successfully edited
+"service/grafana edited"
+
+# then run this again
+kubectl get svc -n monitoring | grep grafana
+
+# the default login grafana credentials is admin for both username and password
+
+# i also access the sock-shop page with the loadbalancer DNS before setting my domain name
+
+http://prometheus.neyothetechguy.com.ng:9090/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ######### This service list is needed to run prometheus services #################
+    ###### it will be added to the CI list in the config.yml file ########
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+    kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/release-0.44/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
+
+    ####### prometheus operator yaml file ########
+    apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      team: frontend
+  resources:
+    requests:
+      memory: 400Mi
+  alerting:
+    alertmanagers:
+    - namespace: monitoring
+      name: alertmanager-main
+      port: web
+########################################################
+
+######### cd into the directory where the prometheus.yaml file is located ########
+########### then run the command below to deploy the prometheus service ##########
+kubectl apply -f prometheus.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+############ open a browser and go to the prometheus url ############
+http://prometheus-operated.monitoring.svc.cluster.local:9090
+
+
+
+
+
+
+
+    # to install prometheus on your local machine follow these steps
+    # https://prometheus.io
+    # https://prometheus.io/download/
+    # https://prometheus.io/download/#prometheus
+    # https://prometheus.io/download/#node_exporter
+    # https://prometheus.io/download/#alertmanager
+    # https://prometheus.io/download/#pushgateway
+    # https://prometheus.io/download/#grafana
+    # https://prometheus.io/download/#promtool  
+    # https://prometheus.io/download/#prometheus-operator
+    # https://prometheus.io/download/#prometheus-adapter
+    # https://prometheus.io/download/#kube-state-metrics
+    # https://prometheus.io/download/#prometheus-blackbox-exporter
+    # https://prometheus.io/download/#prometheus-snmp-exporter
+    # https://prometheus.io/download/#prometheus-mysqld-exporter
+    # https://prometheus.io/download/#prometheus-postgres-exporter
+    # https://prometheus.io/download/#prometheus-mongodb-exporter
+    # https://prometheus.io/download/#prometheus-redis-exporter
+    # https://prometheus.io/download/#prometheus-haproxy-exporter
+    # https://prometheus.io/download/#prometheus-varnish-exporter
+    # https://prometheus.io/download/#prometheus-nginx-exporter
+    # https://prometheus.io/download/#prometheus-aws-sdk-exporter
+    # https://prometheus.io/download/#prometheus-azure-exporter
+    # https://prometheus.io/download/#prometheus-gcp-exporter
+    # https://prometheus.io/download/#prometheus-ec2-exporter
+    # https://prometheus.io/download/#prometheus-ecs-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-event-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-pod-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-service-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-ingress-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-network-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-storage-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-cluster-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-node-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-persistentvolume-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-persistentvolumeclaim-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-poddisruptionbudget-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-podsecuritypolicy-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-priorityclass-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-resourcequota-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-limitrange-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-networkpolicy-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-role-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-rolebinding-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-clusterrole-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-clusterrolebinding-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-configmap-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-secret-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-serviceaccount-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-cronjob-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-daemonset-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-deployment-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-job-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-pod-exporter
+    # https://prometheus.io/download/#prometheus-kubernetes-replicaset-exporter
+
+
+
+
+
+
+    ./argo.sh
+
+
+
+    https://github.com/microservices-demo/microservices-demo
+
+
+
+    - name: Install Argo CD
+      run: helm install argocd argo-cd/argo-cd --namespace argocd || exit 1 
+
+
+
+      Kubectl get ns
+
+
+
+kubectl apply -f apps/namespaces/namespace.yaml      
+
+
+
+#######  deploying manifest using argocd app ############
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    name: ''
+    namespace: monitoring
+    server: 'https://FA87A14478B4F245827CE62F0BCC19A3.gr7.eu-west-2.eks.amazonaws.com'
+  source:
+    path: apps/manifest-monitoring/monitoring
+    repoURL: 'https://github.com/neyo55/capstone-git'
+    targetRevision: HEAD
+  sources: []
+  project: monitoring
+  syncPolicy:
+    syncOptions:
+      - Validate=true
+      - CreateNamespace=false
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+
+
+
+
+https://prometheus-community.github.io/helm-charts
+
+
+#### then port forward the prometheus service to the local machine ####
+kubectl port-forward service/Prometheus 9090:9090 -n monitoring
+
+######### go to the web page to access prometheus with the below url ########
+ac75c8c1d55a145c2bef25c3108fc6a5-4863350.eu-west-2.elb.amazonaws.com:9090
+
+http://localhost:9090
+
+
+
+##### for the Ingress ############
+kubectl get services
+kubectl get services -n ingress-nginx
+
+kubectl get pods -n ingress-nginx
+kubectl describe pod <podname
+kubectl get svc -n ingress-nginx
+kubectl get svc -A
+kubectl get svc -n ingress-nginx
+
